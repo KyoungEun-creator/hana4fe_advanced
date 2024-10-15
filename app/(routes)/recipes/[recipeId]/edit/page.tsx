@@ -3,15 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { getRecipeFromLocalStorage } from '@/lib/localStorage';
 import { type TRecipe } from '../../page';
-
-function getRecipeFromLocalStorage(recipeId: number) {
-  const storedRecipes = localStorage.getItem('recipes');
-  if (!storedRecipes) return null;
-
-  const recipes = JSON.parse(storedRecipes) as TRecipe[];
-  return recipes.find((recipe) => recipe.id === recipeId) || null;
-}
 
 export default function EditRecipe({
   params: { recipeId },
