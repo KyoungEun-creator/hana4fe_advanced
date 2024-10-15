@@ -9,7 +9,7 @@ GET {{host}}/api/recipes?searchStr=
 ### add recipe (추가)
 POST {{host}}/api/recipes
 
-{"name":"계란말이", "tags":"lee"}
+{"name":"계란말이", "tags": ["#계란", "#파", "#당근"]}
 
 ### get a recipe (읽기)
 GET {{host}}/api/recipes/1
