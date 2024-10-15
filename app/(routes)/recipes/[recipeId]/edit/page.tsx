@@ -1,15 +1,25 @@
 'use client';
 
-import { getRecipe, update } from '@/actions/recipes';
+import { TRecipe } from '@/app/api/recipes/recipedata';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+
+function getRecipeFromLocalStorage(recipeId: number) {
+  const storedRecipes = localStorage.getItem('recipes');
+  if (!storedRecipes) return null;
+
+  const recipes = JSON.parse(storedRecipes) as TRecipe[];
+  return recipes.find((recipe) => recipe.id === recipeId) || null;
+}
 
 export default function EditRecipe({
   params: { recipeId },
 }: {
   params: { recipeId: string };
 }) {
+  const Router = useRouter();
+  const id = parseInt(recipeId);
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -18,54 +28,44 @@ export default function EditRecipe({
   const ingredientRef = useRef<HTMLInputElement>(null);
   const stepRef = useRef<HTMLInputElement>(null);
 
-  // 레시피 데이터 가져오기
   useEffect(() => {
-    const fetchRecipe = async () => {
-      const recipe = await getRecipe(+recipeId); // API에서 레시피 가져오기
+    const recipe = getRecipeFromLocalStorage(id);
+    if (recipe) {
       setTitle(recipe.title);
-      setIngredients(recipe.ingredients);
-      setSteps(recipe.steps);
-      setTags(recipe.tags);
+      setTags(recipe.tags || []);
+      setIngredients(recipe.ingredients || []);
+      setSteps(recipe.steps || []);
+    }
+  }, [id]);
 
-      // localStorage에 저장
-      localStorage.setItem(`recipe_${recipeId}`, JSON.stringify(recipe));
+  function saveRecipe() {
+    // 여기서 FormData 객체를 만들기
+    const formData = new FormData();
+    formData.append('title', title);
+    tags.forEach((tag) => formData.append('tag', tag));
+    ingredients.forEach((ingredient) =>
+      formData.append('ingredient', ingredient)
+    );
+    steps.forEach((step) => formData.append('step', step));
+
+    const storedRecipes = localStorage.getItem('recipes');
+    const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+
+    const updatedRecipe = {
+      id: id,
+      title,
+      tags,
+      ingredients,
+      steps,
     };
 
-    fetchRecipe().catch(console.error);
-  }, [recipeId]);
-
-  useEffect(() => {
-    // localStorage에서 데이터 가져오기
-    const storedRecipe = localStorage.getItem(`recipe_${recipeId}`);
-    if (storedRecipe) {
-      const { title, ingredients, steps, tags } = JSON.parse(storedRecipe);
-      setTitle(title);
-      setIngredients(ingredients);
-      setSteps(steps);
-      setTags(tags);
-    }
-  }, [recipeId]);
-
-  async function saveRecipe(formData: FormData) {
-    const title = formData.get('title');
-    const tag = formData.getAll('tag') as string[];
-    const ingredient = formData.getAll('ingredient') as string[];
-    const step = formData.getAll('step') as string[];
-
-    await update(+recipeId, String(title), tag, ingredient, step);
-
-    // localStorage에 저장
-    localStorage.setItem(
-      `recipe_${recipeId}`,
-      JSON.stringify({
-        title,
-        tags: tag,
-        ingredients: ingredient,
-        steps: step,
-      })
+    const updatedRecipes = recipes.map((recipe: TRecipe) =>
+      recipe.id === id ? updatedRecipe : recipe
     );
 
-    redirect(`/recipes/${recipeId}`);
+    localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+
+    Router.push(`/recipes/${recipeId}`);
   }
 
   const handleRemoveTag = (index: number) => {
@@ -82,11 +82,38 @@ export default function EditRecipe({
     setSteps((prevSteps) => prevSteps.filter((_, i) => i !== index));
   };
 
+  const handleTagSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (tagRef.current?.value) {
+      const newval = tagRef.current.value;
+      setTags((prevTags) => [...prevTags, newval]);
+      tagRef.current.value = '';
+    }
+  };
+
+  const handleIngredientSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (ingredientRef.current?.value) {
+      const newval = ingredientRef.current.value;
+      setIngredients((prevIngredients) => [...prevIngredients, newval]);
+      ingredientRef.current.value = '';
+    }
+  };
+
+  const handleStepSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (stepRef.current?.value) {
+      const newval = stepRef.current.value;
+      setSteps((prevSteps) => [...prevSteps, newval]);
+      stepRef.current.value = '';
+    }
+  };
+
   return (
     <div className='w-full'>
       <h1 className='text-3xl font-extrabold my-4'>레시피 수정</h1>
 
-      <form action={saveRecipe} className='space-y-5'>
+      <div className='space-y-5'>
         <div className='flex flex-col'>
           <label htmlFor='title' className='font-bold text-xl'>
             레시피 제목
@@ -94,78 +121,66 @@ export default function EditRecipe({
           <input
             name='title'
             type='text'
-            value={title} // 상태에서 제목을 가져옴
-            onChange={(e) => setTitle(e.target.value)} // 상태 업데이트
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             className='border text-black p-2 rounded'
           />
         </div>
 
-        {/* 태그 목록 */}
-        <div className='flex flex-col'>
+        <form onSubmit={handleTagSubmit} className='flex flex-col'>
           <label htmlFor='tag' className='font-bold text-xl'>
             태그 목록
           </label>
-          <input
-            ref={tagRef}
-            type='text'
-            placeholder='태그를 입력하세요.'
-            className='border text-black p-2 rounded'
-          />
-          <button
-            type='button'
-            onClick={() => {
-              if (tagRef.current && tagRef.current.value) {
-                const newval = tagRef.current?.value;
-                setTags((prevTags) => [...prevTags, newval]);
-                tagRef.current.value = '';
-              }
-            }}
-            className='bg-green-300 text-black px-3 py-2 rounded'
-          >
-            추가
-          </button>
+          <div className='flex justify-between mb-3'>
+            <input
+              ref={tagRef}
+              type='text'
+              placeholder='태그를 입력하세요.'
+              className='w-[95%] border text-black p-2 rounded'
+            />
+            <button
+              type='submit'
+              className='bg-green-300 text-black px-3 py-2 rounded'
+            >
+              추가
+            </button>
+          </div>
 
-          {tags.map((tag, index) => (
-            <div key={index} className='flex gap-3'>
-              <span>{tag}</span>
-              <button
-                onClick={() => handleRemoveTag(index)}
-                className='text-red-500'
-              >
-                삭제
-              </button>
-            </div>
-          ))}
-        </div>
+          <div className='flex '>
+            {tags.map((tag, index) => (
+              <div key={index} className='flex'>
+                <div className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+                  <span>{tag}</span>
+                  <button
+                    onClick={() => handleRemoveTag(index)}
+                    className='text-red-500 ml-2'
+                  >
+                    X
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </form>
 
-        {/* 재료 목록 */}
-        <div className='flex flex-col'>
+        <form onSubmit={handleIngredientSubmit} className='flex flex-col'>
           <label htmlFor='ingredient' className='font-bold text-xl'>
             재료 목록
           </label>
-          <input
-            ref={ingredientRef}
-            type='text'
-            placeholder='재료를 입력하세요.'
-            className='border text-black p-2 rounded'
-          />
-          <button
-            type='button'
-            onClick={() => {
-              if (ingredientRef.current && ingredientRef.current.value) {
-                const newval = ingredientRef.current?.value;
-                setIngredients((prevIngredients) => [
-                  ...prevIngredients,
-                  newval,
-                ]);
-                ingredientRef.current.value = ''; // 입력 필드 비우기
-              }
-            }}
-            className='bg-green-300 text-black px-3 py-2 rounded'
-          >
-            추가
-          </button>
-
+          <div className='flex justify-between mb-3'>
+            <input
+              ref={ingredientRef}
+              type='text'
+              placeholder='재료를 입력하세요.'
+              className='w-[95%] border text-black p-2 rounded'
+            />
+            <button
+              type='submit'
+              className='bg-green-300 text-black px-3 py-2 rounded'
+            >
+              추가
+            </button>
+          </div>
           {ingredients.map((ingredient, index) => (
             <div key={index} className='flex gap-3'>
               <li>{ingredient}</li>
@@ -177,34 +192,27 @@ export default function EditRecipe({
               </button>
             </div>
           ))}
-        </div>
+        </form>
 
-        {/* 조리 과정 */}
-        <div className='flex flex-col'>
+        <form onSubmit={handleStepSubmit} className='flex flex-col'>
           <label htmlFor='step' className='font-bold text-xl'>
             조리 과정
           </label>
-          <input
-            ref={stepRef}
-            type='text'
-            placeholder='조리 과정을 입력하세요.'
-            className='border text-black p-2 rounded'
-          />
-          <button
-            type='button'
-            onClick={() => {
-              if (stepRef.current?.value) {
-                const newval = stepRef.current?.value;
-                setSteps((prevSteps) => [...prevSteps, newval]);
-                stepRef.current.value = ''; // 입력 필드 비우기
-              }
-            }}
-            className='bg-green-300 text-black px-3 py-2 rounded'
-          >
-            추가
-          </button>
-
-          <ol>
+          <div className='flex justify-between mb-3'>
+            <input
+              ref={stepRef}
+              type='text'
+              placeholder='조리 과정을 입력하세요.'
+              className='w-[95%] border text-black p-2 rounded'
+            />
+            <button
+              type='submit'
+              className='bg-green-300 text-black px-3 py-2 rounded'
+            >
+              추가
+            </button>
+          </div>
+          <ol className='list-decimal ml-5'>
             {steps.map((step, index) => (
               <div key={index} className='flex gap-3'>
                 <li>{step}</li>
@@ -217,10 +225,14 @@ export default function EditRecipe({
               </div>
             ))}
           </ol>
-        </div>
+        </form>
 
         <div className='space-x-4'>
-          <button type='submit' className='bg-blue-400 p-3 rounded'>
+          <button
+            type='button' // 변경: 버튼 타입을 'button'으로 설정
+            onClick={saveRecipe} // 클릭 시 saveRecipe 호출
+            className='bg-blue-400 p-3 rounded'
+          >
             레시피 수정
           </button>
           <Link href={'/recipes'}>
@@ -229,7 +241,7 @@ export default function EditRecipe({
             </button>
           </Link>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

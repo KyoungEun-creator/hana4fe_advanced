@@ -2,7 +2,7 @@
 
 import { TRecipe } from '@/app/api/recipes/recipedata';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 export default function New() {
   const Router = useRouter();
@@ -17,16 +17,9 @@ export default function New() {
   const ingredientRef = useRef<HTMLInputElement>(null);
   const stepRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const storedRecipes = localStorage.getItem('recipes');
-    if (storedRecipes) {
-      setRecipes(JSON.parse(storedRecipes));
-    }
-  }, []);
-
   const handleAddTag = () => {
     if (tagRef.current) {
-      const newTag = `#${tagRef.current.value.trim()}`;
+      const newTag = tagRef.current.value.trim();
       if (newTag) {
         setTags((prevTags) => [...prevTags, newTag]);
         tagRef.current.value = '';
@@ -136,7 +129,7 @@ export default function New() {
                 key={index}
                 className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'
               >
-                {tag}
+                #{tag}
               </li>
             ))}
           </ul>
