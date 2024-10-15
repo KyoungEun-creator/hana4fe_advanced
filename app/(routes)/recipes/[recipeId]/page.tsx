@@ -1,9 +1,9 @@
 'use client';
 
-import { TRecipe } from '@/app/api/recipes/recipedata';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import NotFoundRecipe from '../not-found';
+import { type TRecipe } from '../page';
 
 function getRecipeFromLocalStorage(recipeId: number) {
   const storedRecipes = localStorage.getItem('recipes');

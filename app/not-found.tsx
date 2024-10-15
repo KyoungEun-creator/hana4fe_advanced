@@ -1,9 +1,9 @@
 import Image from 'next/image';
 
-export default function NotFoundRecipe() {
+export default function NotFound() {
   return (
     <>
-      <div className='text-2xl mb-4'>This recipe is not found!</div>
+      <div className='text-2xl mb-4'>This page is not found!</div>
       <Image
         src='/images/error.jpeg'
         alt='not-found'

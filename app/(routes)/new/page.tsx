@@ -1,8 +1,8 @@
 'use client';
 
-import { TRecipe } from '@/app/api/recipes/recipedata';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { TRecipe } from '../recipes/page';
 
 export default function New() {
   const Router = useRouter();
@@ -17,11 +17,18 @@ export default function New() {
   const ingredientRef = useRef<HTMLInputElement>(null);
   const stepRef = useRef<HTMLInputElement>(null);
 
+  // 컴포넌트가 마운트될 때 localStorage에서 레시피를 불러옵니다.
+  useEffect(() => {
+    const storedRecipes = localStorage.getItem('recipes');
+    const existingRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+    setRecipes(existingRecipes);
+  }, []);
+
   const handleAddTag = () => {
     if (tagRef.current) {
       const newTag = tagRef.current.value.trim();
       if (newTag) {
-        setTags((prevTags) => [...prevTags, newTag]);
+        setTags((prevTags) => [...prevTags, `#${newTag}`]);
         tagRef.current.value = '';
       }
     }
@@ -53,19 +60,22 @@ export default function New() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 현재 저장된 레시피 중 가장 큰 id를 가져와 새로운 id를 설정합니다.
     const recipeId = recipes.length
       ? Math.max(...recipes.map((r) => r.id)) + 1
       : 1;
 
     const newRecipe = { id: recipeId, title, tags, ingredients, steps };
 
-    const storedRecipes = localStorage.getItem('recipes');
-    const existingRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+    const updatedRecipes = [...recipes, newRecipe];
 
-    const updatedRecipes = [...existingRecipes, newRecipe];
-
+    // 업데이트된 레시피 목록을 localStorage에 저장합니다.
     localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
 
+    // 상태를 업데이트합니다.
+    setRecipes(updatedRecipes);
+
+    // 레시피 페이지로 이동합니다.
     Router.push('/recipes');
   };
 
@@ -118,7 +128,7 @@ export default function New() {
             />
             <button
               type='submit'
-              className='bg-purple-300 text-black px-3 py-2 rounded'
+              className='bg-purple-300 text-black px-3 py-2 rounded hover:bg-purple-500'
             >
               추가
             </button>
@@ -129,7 +139,7 @@ export default function New() {
                 key={index}
                 className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'
               >
-                #{tag}
+                {tag}
               </li>
             ))}
           </ul>
@@ -137,7 +147,7 @@ export default function New() {
 
         {/* 재료 목록 */}
         <form
-          className='flex flex-col'
+          className='flex flex-col space-y-3'
           onSubmit={(e) => {
             e.preventDefault();
             handleAddIngredient();
@@ -156,7 +166,7 @@ export default function New() {
             />
             <button
               type='submit'
-              className='bg-green-300 text-black px-3 py-2 rounded'
+              className='bg-green-300 text-black px-3 py-2 rounded hover:bg-green-500'
             >
               추가
             </button>
@@ -178,7 +188,7 @@ export default function New() {
 
         {/* 조리 과정 */}
         <form
-          className='flex flex-col'
+          className='flex flex-col space-y-3'
           onSubmit={(e) => {
             e.preventDefault();
             handleAddStep();
@@ -197,7 +207,7 @@ export default function New() {
             />
             <button
               type='submit'
-              className='bg-green-300 text-black px-3 py-2 rounded'
+              className='bg-green-300 text-black px-3 py-2 rounded hover:bg-green-500'
             >
               추가
             </button>
@@ -222,7 +232,7 @@ export default function New() {
           <button
             type='submit'
             onClick={handleSubmit}
-            className='bg-blue-400 p-3 rounded'
+            className='bg-blue-400 p-3 rounded hover:bg-blue-600'
           >
             레시피 저장
           </button>

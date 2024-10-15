@@ -1,9 +1,9 @@
 'use client';
 
-import { TRecipe } from '@/app/api/recipes/recipedata';
 import Link from 'next/link';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { type TRecipe } from '../../page';
 
 function getRecipeFromLocalStorage(recipeId: number) {
   const storedRecipes = localStorage.getItem('recipes');
@@ -86,7 +86,8 @@ export default function EditRecipe({
     e.preventDefault();
     if (tagRef.current?.value) {
       const newval = tagRef.current.value;
-      setTags((prevTags) => [...prevTags, newval]);
+      const formattedTag = newval.startsWith('#') ? newval : `#${newval}`;
+      setTags((prevTags) => [...prevTags, formattedTag]);
       tagRef.current.value = '';
     }
   };
