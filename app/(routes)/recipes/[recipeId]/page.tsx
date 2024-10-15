@@ -12,7 +12,7 @@ export default async function Recipe({
   if (!recipe) return NotFoundRecipe();
 
   return (
-    <div className=' w-full space-y-4'>
+    <div className='w-full space-y-4'>
       <h1 className='text-3xl font-extrabold my-3'>{recipe.title}</h1>
 
       {/* 조리 과정 */}
@@ -73,7 +73,10 @@ export default async function Recipe({
 
       {/* 수정/삭제/목록으로 */}
       <article className='space-x-3'>
-        <Link href='' className='text-black bg-yellow-500 rounded p-3'>
+        <Link
+          href={`/recipes/${recipeId}/edit`}
+          className='text-black bg-yellow-500 rounded p-3'
+        >
           수정
         </Link>
         <DelRecipe id={+recipeId} />

@@ -16,20 +16,20 @@ export const delRecipe = (recipeId: number) => {
   redirect('/recipes');
 };
 
-export const saveRecipe = (
+export const save = (
   recipeId: number,
   title: string,
-  tags: string[],
-  ingredients: string[],
-  steps: string[]
+  tags?: string[],
+  ingredients?: string[],
+  steps?: string[]
 ) => {
-  const book = recipes.find((recipe) => recipe.id === recipeId);
-  if (!book) return Response.json({ code: 404, message: 'Not Found' });
+  const recipe = recipes.find((recipe) => recipe.id === recipeId);
+  if (!recipe) return Response.json({ code: 404, message: 'Not Found' });
 
-  book.title = title;
-  book.tags = tags;
-  book.ingredients = ingredients;
-  book.steps = steps;
+  recipe.title = title;
+  recipe.tags = tags;
+  recipe.ingredients = ingredients;
+  recipe.steps = steps;
 
-  return book;
+  return recipe;
 };
