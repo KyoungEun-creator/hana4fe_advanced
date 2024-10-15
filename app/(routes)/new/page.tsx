@@ -1,14 +1,17 @@
 'use client';
 
-import { save } from '@/actions/recipes';
-import { redirect } from 'next/navigation';
+import { TRecipe } from '@/app/api/recipes/recipedata';
+import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 export default function New() {
+  const Router = useRouter();
+
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [steps, setSteps] = useState<string[]>([]);
+  const [recipes, setRecipes] = useState<TRecipe[]>([]);
 
   const tagRef = useRef<HTMLInputElement>(null);
   const ingredientRef = useRef<HTMLInputElement>(null);
@@ -18,7 +21,7 @@ export default function New() {
     if (tagRef.current) {
       const newTag = tagRef.current.value.trim();
       if (newTag) {
-        setTags([...tags, newTag]);
+        setTags((prevTags) => [...prevTags, newTag]);
         tagRef.current.value = '';
       }
     }
@@ -28,7 +31,10 @@ export default function New() {
     if (ingredientRef.current) {
       const newIngredient = ingredientRef.current.value.trim();
       if (newIngredient) {
-        setIngredients([...ingredients, newIngredient]);
+        setIngredients((prevIngredients) => [
+          ...prevIngredients,
+          newIngredient,
+        ]);
         ingredientRef.current.value = '';
       }
     }
@@ -38,26 +44,46 @@ export default function New() {
     if (stepRef.current) {
       const newStep = stepRef.current.value.trim();
       if (newStep) {
-        setSteps([...steps, newStep]);
+        setSteps((prevSteps) => [...prevSteps, newStep]);
         stepRef.current.value = '';
       }
     }
   };
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
-      alert('레시피 제목란을 채워주세요!');
-      return;
-    }
-    // 저장 로직 추가 (예: save() 함수 호출)
-    redirect(`/recipes`);
+
+    const recipeId = recipes.length
+      ? Math.max(...recipes.map((r) => r.id)) + 1
+      : 1;
+
+    const newRecipe = { id: recipeId, title, tags, ingredients, steps };
+
+    const storedRecipes = localStorage.getItem('recipes');
+    const existingRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+
+    const updatedRecipes = [...existingRecipes, newRecipe];
+
+    localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+
+    Router.push('/recipes');
+  };
+
+  const handleRemoveIngredient = (index: number) => {
+    setIngredients((prevIngredients) =>
+      prevIngredients.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleRemoveStep = (index: number) => {
+    setSteps((prevSteps) => prevSteps.filter((_, i) => i !== index));
   };
 
   return (
     <div className='w-full'>
       <h1 className='text-3xl font-extrabold my-4'>새 레시피 추가하기</h1>
 
-      <form className='space-y-5' onSubmit={handleSubmit}>
+      <div className='space-y-5'>
         <div className='flex flex-col'>
           <label htmlFor='title' className='font-bold text-xl'>
             레시피 제목
@@ -66,12 +92,19 @@ export default function New() {
             name='title'
             type='text'
             placeholder='레시피 제목을 입력하세요.'
+            onChange={(e) => setTitle(e.target.value)}
             className='border text-black p-2 rounded'
           />
         </div>
 
         {/* 태그 */}
-        <div className='flex flex-col space-y-3'>
+        <form
+          className='flex flex-col space-y-3'
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddTag();
+          }}
+        >
           <label htmlFor='tag' className='font-bold text-xl'>
             태그
           </label>
@@ -84,8 +117,7 @@ export default function New() {
               className='w-[94%] border text-black p-2 rounded'
             />
             <button
-              type='button'
-              onClick={handleAddTag}
+              type='submit'
               className='bg-purple-300 text-black px-3 py-2 rounded'
             >
               추가
@@ -101,10 +133,16 @@ export default function New() {
               </li>
             ))}
           </ul>
-        </div>
+        </form>
 
         {/* 재료 목록 */}
-        <div className='flex flex-col'>
+        <form
+          className='flex flex-col'
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddIngredient();
+          }}
+        >
           <label htmlFor='ingredient' className='font-bold text-xl'>
             재료 목록
           </label>
@@ -117,8 +155,7 @@ export default function New() {
               className='w-[94%] border text-black p-2 rounded'
             />
             <button
-              type='button'
-              onClick={handleAddIngredient}
+              type='submit'
               className='bg-green-300 text-black px-3 py-2 rounded'
             >
               추가
@@ -126,13 +163,27 @@ export default function New() {
           </div>
           <div className='ml-5'>
             {ingredients.map((ingredient, index) => (
-              <li key={index}>{ingredient}</li>
+              <div key={index} className='flex gap-3'>
+                <li>{ingredient}</li>
+                <button
+                  onClick={() => handleRemoveIngredient(index)}
+                  className='text-red-500'
+                >
+                  삭제
+                </button>
+              </div>
             ))}
           </div>
-        </div>
+        </form>
 
         {/* 조리 과정 */}
-        <div className='flex flex-col'>
+        <form
+          className='flex flex-col'
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddStep();
+          }}
+        >
           <label htmlFor='step' className='font-bold text-xl'>
             조리 과정
           </label>
@@ -145,26 +196,38 @@ export default function New() {
               className='w-[94%] border text-black p-2 rounded'
             />
             <button
-              type='button'
-              onClick={handleAddStep}
+              type='submit'
               className='bg-green-300 text-black px-3 py-2 rounded'
             >
               추가
             </button>
           </div>
+
           <ol className='list-decimal ml-5'>
             {steps.map((step, index) => (
-              <li key={index}>{step}</li>
+              <div key={index} className='flex gap-3'>
+                <li>{step}</li>
+                <button
+                  onClick={() => handleRemoveStep(index)}
+                  className='text-red-500'
+                >
+                  삭제
+                </button>
+              </div>
             ))}
           </ol>
-        </div>
+        </form>
 
         <div>
-          <button type='submit' className='bg-blue-400 p-3 rounded'>
+          <button
+            type='submit'
+            onClick={handleSubmit}
+            className='bg-blue-400 p-3 rounded'
+          >
             레시피 저장
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

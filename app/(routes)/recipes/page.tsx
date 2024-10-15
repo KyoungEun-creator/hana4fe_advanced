@@ -1,19 +1,30 @@
 'use client';
 
 import { TRecipe } from '@/app/api/recipes/recipedata';
-import { useFetch } from '@/hooks/fetch-hook';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function Recipes() {
-  const {
-    data: recipes,
-    isLoading,
-    error,
-  } = useFetch<TRecipe[]>(
-    `${process.env.NEXT_PUBLIC_URL}/api/recipes?q=111`,
-    {},
-    false
-  );
+  const [recipes, setRecipes] = useState<TRecipe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    try {
+      // 로컬 스토리지에서 데이터 가져오기
+      const storedRecipes = localStorage.getItem('recipes');
+      if (storedRecipes) {
+        const parsedRecipes = JSON.parse(storedRecipes) as TRecipe[];
+        setRecipes(parsedRecipes);
+      } else {
+        setError(new Error('저장된 레시피가 없습니다.'));
+      }
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   if (error) return <div className='text-red-500'>{error.message}</div>;
 
@@ -23,14 +34,14 @@ export default function Recipes() {
         <>is loading..</>
       ) : (
         <>
-          <ul className=' w-full'>
+          <ul className='w-full'>
             {recipes?.map(({ id, title, tags }) => (
               <li key={id}>
                 <div className='rounded border shadow p-3 m-3 h-36 flex flex-col justify-around'>
                   {/* 레시피 타이틀 */}
                   <div className='text-2xl font-extrabold'>{title}</div>
                   {/* 태그 모음 */}
-                  <div className=''>
+                  <div>
                     {tags.map((tag) => (
                       <span
                         key={tag}
