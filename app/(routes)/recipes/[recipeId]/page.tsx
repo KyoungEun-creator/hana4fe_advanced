@@ -2,7 +2,7 @@
 
 import { TRecipe } from '@/app/api/recipes/recipedata';
 import Link from 'next/link';
-import DelRecipe from '@/components/DelRecipe';
+import { useRouter } from 'next/navigation';
 import NotFoundRecipe from '../not-found';
 
 function getRecipeFromLocalStorage(recipeId: number) {
@@ -14,13 +14,31 @@ function getRecipeFromLocalStorage(recipeId: number) {
   return recipes.find(({ id }) => id === recipeId) || null;
 }
 
+function deleteRecipeFromLocalStorage(recipeId: number) {
+  const storedRecipes = localStorage.getItem('recipes');
+  if (!storedRecipes) return;
+
+  const recipes = JSON.parse(storedRecipes) as TRecipe[];
+  const updatedRecipes = recipes.filter(({ id }) => id !== recipeId);
+  localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+}
+
 export default function Recipe({
   params: { recipeId },
 }: {
   params: { recipeId: string };
 }) {
+  const Router = useRouter();
   const recipe = getRecipeFromLocalStorage(+recipeId);
+
   if (!recipe) return NotFoundRecipe();
+
+  const handleDelete = () => {
+    if (confirm('Are you sure?')) {
+      deleteRecipeFromLocalStorage(+recipeId);
+      Router.push('/recipes');
+    }
+  };
 
   return (
     <div className='w-full space-y-4'>
@@ -84,16 +102,19 @@ export default function Recipe({
 
       {/* 수정/삭제/목록으로 */}
       <article className='space-x-3'>
-        <Link
-          href={`/recipes/${recipeId}/edit`}
-          className='text-black bg-yellow-500 rounded p-3'
+        <button className='text-black bg-yellow-500 rounded p-3'>
+          <Link href={`/recipes/${recipeId}/edit`}>수정</Link>
+        </button>
+
+        <button
+          className='text-black bg-pink-500 rounded p-3'
+          onClick={handleDelete}
         >
-          수정
-        </Link>
-        <DelRecipe id={+recipeId} />
-        <Link href='/recipes' className='text-black bg-gray-500 rounded p-3'>
-          목록으로
-        </Link>
+          삭제
+        </button>
+        <button className='text-black bg-gray-500 rounded p-3'>
+          <Link href='/recipes'>목록으로</Link>
+        </button>
       </article>
     </div>
   );
