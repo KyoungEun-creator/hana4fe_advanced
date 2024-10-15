@@ -1,14 +1,25 @@
-import { getRecipe } from '@/actions/recipes';
+'use client';
+
+import { TRecipe } from '@/app/api/recipes/recipedata';
 import Link from 'next/link';
 import DelRecipe from '@/components/DelRecipe';
 import NotFoundRecipe from '../not-found';
 
-export default async function Recipe({
+function getRecipeFromLocalStorage(recipeId: number) {
+  const storedRecipes = localStorage.getItem('recipes');
+  if (!storedRecipes) return null;
+
+  const recipes = JSON.parse(storedRecipes) as TRecipe[];
+
+  return recipes.find(({ id }) => id === recipeId) || null;
+}
+
+export default function Recipe({
   params: { recipeId },
 }: {
   params: { recipeId: string };
 }) {
-  const recipe = await getRecipe(+recipeId);
+  const recipe = getRecipeFromLocalStorage(+recipeId);
   if (!recipe) return NotFoundRecipe();
 
   return (
@@ -18,7 +29,7 @@ export default async function Recipe({
       {/* 조리 과정 */}
       <article className=''>
         <div className='font-bold text-xl'>조리과정</div>
-        <ul>
+        <ol className='list-decimal ml-5'>
           {recipe.steps.map((step) => (
             <>
               <li key={step}>{step}</li>
@@ -34,7 +45,7 @@ export default async function Recipe({
               </div>
             </>
           ))}
-        </ul>
+        </ol>
       </article>
 
       {/* 태그 */}
@@ -42,7 +53,7 @@ export default async function Recipe({
         <ul className='flex'>
           {recipe.tags.map((tag) => (
             <li key={tag}>
-              <span className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+              <span className=' bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
                 {tag}
               </span>
             </li>
@@ -61,11 +72,11 @@ export default async function Recipe({
       {/* 조리 과정 */}
       <article className=''>
         <div className='font-bold text-xl'>조리과정</div>
-        <ul>
+        <ol className='list-decimal ml-5'>
           {recipe.steps.map((step) => (
             <li key={step}>{step}</li>
           ))}
-        </ul>
+        </ol>
       </article>
 
       {/* 수정 기록 */}
