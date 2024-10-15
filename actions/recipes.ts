@@ -26,10 +26,10 @@ export const save = (
   const recipe = recipes.find((recipe) => recipe.id === recipeId);
   if (!recipe) return Response.json({ code: 404, message: 'Not Found' });
 
-  recipe.title = title;
-  recipe.tags = tags;
-  recipe.ingredients = ingredients;
-  recipe.steps = steps;
+  // recipe.title = title;
+  // recipe.tags = tags;
+  // recipe.ingredients = ingredients;
+  // recipe.steps = steps;
 
   return recipe;
 };

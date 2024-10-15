@@ -42,7 +42,7 @@ export default async function Recipe({
         <ul className='flex'>
           {recipe.tags.map((tag) => (
             <li key={tag}>
-              <span className='border bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+              <span className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
                 {tag}
               </span>
             </li>

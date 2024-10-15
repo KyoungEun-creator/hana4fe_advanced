@@ -17,7 +17,7 @@ export default async function EditRecipe({
 
     save(+recipeId, String());
 
-    redirect(`/books/${recipeId}`);
+    redirect(`/recipes/${recipeId}`);
   }
 
   return (
@@ -74,9 +74,9 @@ export default async function EditRecipe({
 
           {/* 기존 조리 과정 */}
           <ol>
-            {steps.map((step) => (
-              <div className='flex gap-3'>
-                <li key={step}>{step}</li>
+            {steps.map((step, index) => (
+              <div className='flex gap-3' key={index}>
+                <li>{step}</li>
                 <button className='text-red-500'>삭제</button>
               </div>
             ))}
