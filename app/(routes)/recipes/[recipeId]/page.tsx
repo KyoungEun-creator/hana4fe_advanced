@@ -18,26 +18,17 @@ export default function Recipe({
   const Router = useRouter();
   const recipe = getRecipeFromLocalStorage(+recipeId);
 
-  const [timer, setTimer] = useState<number | null>(null);
-  const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const stepsLength = recipe?.steps.length || 0;
 
-  useEffect(() => {
-    if (remainingTime === null || !recipe) return;
-
-    if (remainingTime === 0) {
-      alert('타이머가 종료되었습니다!');
-      setRemainingTime(null);
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      setRemainingTime((prev) => (prev !== null ? prev - 1 : null));
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [remainingTime, recipe]);
-
-  if (!recipe) return NotFoundRecipe();
+  const [timers, setTimers] = useState<(number | null)[]>(
+    Array(stepsLength).fill(null)
+  );
+  const [remainingTimes, setRemainingTimes] = useState<(number | null)[]>(
+    Array(stepsLength).fill(null)
+  );
+  const [inputValues, setInputValues] = useState<(number | '')[]>(
+    Array(stepsLength).fill('')
+  );
 
   // 레시피 삭제 버튼
   const handleDelete = () => {
@@ -47,55 +38,116 @@ export default function Recipe({
     }
   };
 
-  const handleStartTimer = (seconds: number) => {
-    if (seconds <= 0) return;
-    setRemainingTime(seconds);
-    setTimer(seconds);
+  const handleInputChange = (stepIndex: number, value: string) => {
+    const updatedInputValues = [...inputValues];
+    updatedInputValues[stepIndex] = value === '' ? '' : parseInt(value, 10);
+    setInputValues(updatedInputValues);
   };
+
+  const handleStartTimer = (stepIndex: number) => {
+    const seconds = inputValues[stepIndex];
+    if (typeof seconds !== 'number' || seconds <= 0) return;
+
+    const updatedTimers = [...timers];
+    const updatedRemainingTimes = [...remainingTimes];
+
+    updatedTimers[stepIndex] = seconds;
+    updatedRemainingTimes[stepIndex] = seconds;
+
+    setTimers(updatedTimers);
+    setRemainingTimes(updatedRemainingTimes);
+  };
+
+  useEffect(() => {
+    if (!recipe) return;
+
+    const intervalIds: NodeJS.Timeout[] = [];
+
+    remainingTimes.forEach((remainingTime, index) => {
+      if (remainingTime === null) return;
+
+      if (remainingTime === 0) {
+        alert(`Step ${index + 1} 타이머가 종료되었습니다!`);
+
+        setRemainingTimes((prev) => {
+          const newTimes = [...prev];
+          newTimes[index] = null;
+          return newTimes;
+        });
+        setInputValues((prev) => {
+          const newValues = [...prev];
+          newValues[index] = '';
+          return newValues;
+        });
+
+        return;
+      }
+
+      const intervalId = setInterval(() => {
+        setRemainingTimes((prev) => {
+          const newTimes = [...prev];
+          if (newTimes[index] !== null) {
+            newTimes[index] = newTimes[index]! - 1;
+          }
+          return newTimes;
+        });
+      }, 1000);
+
+      intervalIds.push(intervalId);
+    });
+
+    // cleanup 함수로 각 타이머를 정리
+    return () => intervalIds.forEach(clearInterval);
+  }, [remainingTimes, recipe]);
+
+  if (!recipe) return <NotFoundRecipe />;
 
   return (
     <div className='w-full space-y-4'>
-      <h1 className='text-3xl font-extrabold my-3'>{recipe.title}</h1>
+      <h1 className='text-3xl font-extrabold my-3'>{recipe?.title}</h1>
 
       {/* 조리 과정 */}
-      <article className=''>
+      <article>
         <div className='font-bold text-xl'>조리과정</div>
         <ol className='list-decimal ml-5'>
-          {recipe.steps.map((step: string) => (
-            <>
-              <li key={step}>{step}</li>
-              <div className='flex gap-4'>
+          {recipe?.steps.map((step, index) => (
+            <li key={index}>
+              {step}
+              <div className='flex gap-4 mt-2'>
                 <input
                   type='number'
                   placeholder='시간(초)'
                   className='rounded px-2 text-black'
-                  onChange={(e) => handleStartTimer(+e.currentTarget.value)}
+                  value={inputValues[index] === '' ? '' : inputValues[index]}
+                  onChange={(e) =>
+                    handleInputChange(index, e.currentTarget.value)
+                  }
                 />
                 <button
                   className='flex items-center gap-3 bg-blue-700 rounded px-3 py-2'
-                  onClick={() => handleStartTimer(Number(timer))}
-                  disabled={remainingTime !== null}
+                  onClick={() => handleStartTimer(index)}
+                  disabled={remainingTimes[index] !== null}
                 >
                   <BellAlertIcon className='w-4' />
                   타이머 시작
                 </button>
-                {remainingTime !== null && (
+                {remainingTimes[index] !== null && (
                   <div className='mt-2 text-red-500'>
-                    남은 시간: {remainingTime}초
+                    남은 시간: {remainingTimes[index]}초
                   </div>
                 )}
               </div>
-            </>
+            </li>
           ))}
         </ol>
       </article>
 
       {/* 태그 */}
-      <article className=''>
+      <article>
         <ul className='flex'>
-          {recipe.tags.map((tag: string) => (
+          {recipe?.tags.map((tag) => (
             <li key={tag}>
-              <span className=' bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+              <span className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
                 {tag}
               </span>
             </li>
@@ -104,21 +156,11 @@ export default function Recipe({
       </article>
 
       {/* 재료 */}
-      <article className=''>
+      <article>
         <div className='font-bold text-xl'>재료</div>
-        {recipe.ingredients.map((recipe: string) => (
-          <li key={recipe}>{recipe}</li>
+        {recipe?.ingredients.map((ingredient) => (
+          <li key={ingredient}>{ingredient}</li>
         ))}
-      </article>
-
-      {/* 조리 과정 */}
-      <article className=''>
-        <div className='font-bold text-xl'>조리과정</div>
-        <ol className='list-decimal ml-5'>
-          {recipe.steps.map((step: string) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ol>
       </article>
 
       {/* 수정 기록 */}
@@ -126,11 +168,9 @@ export default function Recipe({
 
       {/* 수정/삭제/목록으로 */}
       <article className='space-x-3'>
-        <Link href={`/recipes/${recipeId}/edit`}>
-          <button className='text-black bg-yellow-500 rounded p-3'>
-            수정기록
-          </button>
-        </Link>
+        <button className='text-black bg-yellow-500 rounded p-3'>
+          <Link href={`/recipes/${recipeId}/edit`}>수정</Link>
+        </button>
 
         <button
           className='text-black bg-pink-500 rounded p-3'
@@ -138,11 +178,9 @@ export default function Recipe({
         >
           삭제
         </button>
-        <Link href='/recipes'>
-          <button className='text-black bg-gray-500 rounded p-3'>
-            목록으로
-          </button>
-        </Link>
+        <button className='text-black bg-gray-500 rounded p-3'>
+          <Link href='/recipes'>목록으로</Link>
+        </button>
       </article>
     </div>
   );

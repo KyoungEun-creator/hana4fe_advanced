@@ -17,7 +17,6 @@ export default function New() {
   const ingredientRef = useRef<HTMLInputElement>(null);
   const stepRef = useRef<HTMLInputElement>(null);
 
-  // 컴포넌트가 마운트될 때 localStorage에서 레시피를 불러옵니다.
   useEffect(() => {
     const storedRecipes = localStorage.getItem('recipes');
     const existingRecipes = storedRecipes ? JSON.parse(storedRecipes) : [];
@@ -60,22 +59,15 @@ export default function New() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 현재 저장된 레시피 중 가장 큰 id를 가져와 새로운 id를 설정합니다.
     const recipeId = recipes.length
       ? Math.max(...recipes.map((r) => r.id)) + 1
       : 1;
 
     const newRecipe = { id: recipeId, title, tags, ingredients, steps };
-
     const updatedRecipes = [...recipes, newRecipe];
-
-    // 업데이트된 레시피 목록을 localStorage에 저장합니다.
     localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
-
-    // 상태를 업데이트합니다.
     setRecipes(updatedRecipes);
 
-    // 레시피 페이지로 이동합니다.
     Router.push('/recipes');
   };
 
