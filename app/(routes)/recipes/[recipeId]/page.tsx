@@ -138,37 +138,41 @@ export default function Recipe({
       {/* 조리 과정 */}
       <article>
         <div className='font-bold text-xl'>조리과정</div>
-        <ol className='list-decimal ml-5'>
-          {recipe?.steps.map((step, index) => (
-            <li key={index}>
-              {step}
-              <div className='flex gap-4 mt-2'>
-                <input
-                  type='number'
-                  placeholder='시간(초)'
-                  className='rounded px-2 text-black'
-                  value={inputValues[index] === '' ? '' : inputValues[index]}
-                  onChange={(e) =>
-                    handleInputChange(index, e.currentTarget.value)
-                  }
-                />
-                <button
-                  className='flex items-center gap-3 bg-blue-700 rounded px-3 py-2'
-                  onClick={() => handleStartTimer(index)}
-                  disabled={remainingTimes[index] !== null}
-                >
-                  <BellAlertIcon className='w-4' />
-                  타이머 시작
-                </button>
-                {remainingTimes[index] !== null && (
-                  <div className='mt-2 text-red-500'>
-                    남은 시간: {remainingTimes[index]}초
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
+        {recipe.steps.length > 0 ? (
+          <ol className='list-decimal ml-5'>
+            {recipe?.steps.map((step, index) => (
+              <li key={index}>
+                {step}
+                <div className='flex gap-4 mt-2'>
+                  <input
+                    type='number'
+                    placeholder='시간(초)'
+                    className='rounded px-2 text-black'
+                    value={inputValues[index] === '' ? '' : inputValues[index]}
+                    onChange={(e) =>
+                      handleInputChange(index, e.currentTarget.value)
+                    }
+                  />
+                  <button
+                    className='flex items-center gap-3 bg-blue-700 rounded px-3 py-2'
+                    onClick={() => handleStartTimer(index)}
+                    disabled={remainingTimes[index] !== null}
+                  >
+                    <BellAlertIcon className='w-4' />
+                    타이머 시작
+                  </button>
+                  {remainingTimes[index] !== null && (
+                    <div className='mt-2 text-red-500'>
+                      남은 시간: {remainingTimes[index]}초
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <div>(아직 조리과정을 입력하지 않았습니다.)</div>
+        )}
       </article>
 
       {/* 태그 */}
