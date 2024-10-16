@@ -3,7 +3,7 @@ import Image from 'next/image';
 export default function NotFound() {
   return (
     <>
-      <div className='text-2xl mb-4'>This page is not found!</div>
+      <div className='text-2xl mb-4'>이 페이지는 존재하지 않습니다🥹🙏</div>
       <Image
         src='/images/error.jpeg'
         alt='not-found'

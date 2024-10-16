@@ -34,8 +34,8 @@ export const {
   ],
   callbacks: {
     session({ session }) {
-      // console.log('🚀 cb - session:', session);
       return session;
     },
   },
+  trustHost: true,
 });
