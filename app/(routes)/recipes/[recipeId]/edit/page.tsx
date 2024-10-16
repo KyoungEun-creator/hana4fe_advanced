@@ -110,7 +110,7 @@ export default function EditRecipe({
       <div className='space-y-5'>
         <div className='flex flex-col'>
           <label htmlFor='title' className='font-bold text-xl'>
-            레시피 제목
+            🤓 레시피 제목
           </label>
           <input
             name='title'
@@ -124,7 +124,7 @@ export default function EditRecipe({
 
         <form onSubmit={handleTagSubmit} className='flex flex-col'>
           <label htmlFor='tag' className='font-bold text-xl'>
-            태그 목록
+            #️⃣ 태그 목록
           </label>
           <div className='flex justify-between gap-3 mb-3'>
             <input
@@ -135,16 +135,16 @@ export default function EditRecipe({
             />
             <button
               type='submit'
-              className='bg-green-300 text-black px-3 py-2 rounded'
+              className='btn-default bg-purple-300 hover:bg-purple-600 hover:text-white text-black'
             >
               추가
             </button>
           </div>
 
-          <div className='flex '>
+          <div className='flex'>
             {tags.map((tag, index) => (
               <div key={index} className='flex'>
-                <div className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+                <div className='btn-small bg-gray-300 mr-2 text-gray-800'>
                   <span>{tag}</span>
                   <button
                     onClick={() => handleRemoveTag(index)}
@@ -160,7 +160,7 @@ export default function EditRecipe({
 
         <form onSubmit={handleIngredientSubmit} className='flex flex-col'>
           <label htmlFor='ingredient' className='font-bold text-xl'>
-            재료 목록
+            🍴 재료 목록
           </label>
           <div className='flex justify-between gap-3 mb-3'>
             <input
@@ -171,7 +171,7 @@ export default function EditRecipe({
             />
             <button
               type='submit'
-              className='bg-green-300 text-black px-3 py-2 rounded'
+              className='btn-default bg-purple-300 hover:bg-purple-600 hover:text-white text-black'
             >
               추가
             </button>
@@ -191,7 +191,7 @@ export default function EditRecipe({
 
         <form onSubmit={handleStepSubmit} className='flex flex-col'>
           <label htmlFor='step' className='font-bold text-xl'>
-            조리 과정
+            🥣 조리 과정
           </label>
           <div className='flex justify-between gap-3 mb-3'>
             <input
@@ -202,7 +202,7 @@ export default function EditRecipe({
             />
             <button
               type='submit'
-              className='bg-green-300 text-black px-3 py-2 rounded'
+              className='btn-default bg-purple-300 hover:bg-purple-600 hover:text-white text-black'
             >
               추가
             </button>
@@ -222,18 +222,16 @@ export default function EditRecipe({
           </ol>
         </form>
 
-        <div className='space-x-4'>
+        <div className='flex space-x-4'>
           <button
             onClick={saveRecipe}
-            className={`bg-blue-400 text-white px-4 py-2 rounded ${isSaveDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`btn-default bg-blue-500  text-white ${isSaveDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={isSaveDisabled}
           >
             저장
           </button>
           <Link href={`/recipes/${recipeId}`}>
-            <button className='bg-red-400 text-white px-4 py-2 rounded'>
-              취소
-            </button>
+            <button className='btn-default bg-red-500 text-white'>취소</button>
           </Link>
         </div>
       </div>
