@@ -20,7 +20,7 @@ export default function Recipe({
   const [recipe, setRecipe] = useState<TRecipe | null>(
     getRecipeFromLocalStorage(+recipeId)
   );
-  const [selectedVersion, setSelectedVersion] = useState<number | null>(null); // 선택된 버전 상태 추가
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
 
   const stepsLength = recipe?.steps.length || 0;
 
@@ -34,7 +34,6 @@ export default function Recipe({
     Array(stepsLength).fill('')
   );
 
-  // 레시피 삭제 버튼
   const handleDelete = () => {
     if (confirm('정말 삭제하시겠습니까?')) {
       deleteRecipeFromLocalStorage(+recipeId);
@@ -107,7 +106,6 @@ export default function Recipe({
 
   if (!recipe) return <NotFoundRecipe />;
 
-  // 버전 복원 함수
   function restoreVersion(recipeId: number, versionIndex: number) {
     const storedRecipes = localStorage.getItem('recipes');
     const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
@@ -134,7 +132,22 @@ export default function Recipe({
 
   return (
     <div className='w-full space-y-4'>
-      <h1 className='text-3xl font-extrabold my-3'>{recipe?.title}</h1>
+      <h1 className='border-2 rounded-lg border-orange-300 text-center py-3 text-3xl font-extrabold my-3'>
+        {recipe?.title}
+      </h1>
+
+      {/* 태그 */}
+      <article>
+        <ul className='flex'>
+          {recipe?.tags.map((tag) => (
+            <li key={tag}>
+              <span className='btn-small bg-gray-300 mr-2 text-gray-800'>
+                {tag}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </article>
 
       {/* 조리 과정 */}
       <article>
@@ -181,19 +194,6 @@ export default function Recipe({
         ) : (
           <div>(아직 조리과정을 입력하지 않았습니다.)</div>
         )}
-      </article>
-
-      {/* 태그 */}
-      <article>
-        <ul className='flex'>
-          {recipe?.tags.map((tag) => (
-            <li key={tag}>
-              <span className='btn-small bg-gray-300 mr-2 text-gray-800'>
-                {tag}
-              </span>
-            </li>
-          ))}
-        </ul>
       </article>
 
       {/* 재료 */}
