@@ -18,7 +18,9 @@ export default function Recipe({
   params: { recipeId: string };
 }) {
   const Router = useRouter();
-  const recipe = getRecipeFromLocalStorage(+recipeId);
+  const [recipe, setRecipe] = useState<TRecipe | null>(
+    getRecipeFromLocalStorage(+recipeId)
+  );
 
   const stepsLength = recipe?.steps.length || 0;
 
@@ -113,7 +115,11 @@ export default function Recipe({
 
     if (recipe && recipe.versions[versionIndex]) {
       const previousVersion = recipe.versions[versionIndex].recipe;
-      saveRecipeToLocalStorage(recipeId, previousVersion); // 이전 버전으로 레시피 저장
+
+      // 상태 업데이트를 사용하여 화면에 이전 버전 레시피를 반영
+      setRecipe(previousVersion);
+
+      saveRecipeToLocalStorage(recipeId, previousVersion);
     }
   }
 

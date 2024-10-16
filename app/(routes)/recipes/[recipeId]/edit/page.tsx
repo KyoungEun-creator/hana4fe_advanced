@@ -237,7 +237,7 @@ export default function EditRecipe({
           >
             저장
           </button>
-          <Link href='/'>
+          <Link href={`/recipes/${recipeId}`}>
             <button className='bg-red-400 text-white px-4 py-2 rounded'>
               취소
             </button>
