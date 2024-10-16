@@ -138,7 +138,7 @@ export default function Recipe({
 
       {/* 조리 과정 */}
       <article>
-        <div className='font-bold text-xl'>조리과정</div>
+        <div className='font-bold text-xl'>⏲️ 조리과정</div>
         {recipe.steps.length > 0 ? (
           <ol className='list-decimal ml-5'>
             {recipe?.steps.map((step, index) => (
@@ -157,7 +157,7 @@ export default function Recipe({
                   />
                   {remainingTimes[index] !== null ? (
                     <button
-                      className='flex items-center gap-3 bg-red-500 rounded px-3 py-2'
+                      className='btn-default gap-3 bg-red-500'
                       onClick={() => handleStartTimer(index)}
                       disabled={remainingTimes[index] !== null}
                     >
@@ -166,7 +166,7 @@ export default function Recipe({
                     </button>
                   ) : (
                     <button
-                      className='flex items-center gap-3 bg-blue-700 rounded px-3 py-2'
+                      className='btn-default gap-3 bg-blue-700'
                       onClick={() => handleStartTimer(index)}
                       disabled={remainingTimes[index] !== null}
                     >
@@ -188,7 +188,7 @@ export default function Recipe({
         <ul className='flex'>
           {recipe?.tags.map((tag) => (
             <li key={tag}>
-              <span className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+              <span className='btn-small bg-gray-300 mr-2 text-gray-800'>
                 {tag}
               </span>
             </li>
@@ -198,7 +198,7 @@ export default function Recipe({
 
       {/* 재료 */}
       <article>
-        <div className='font-bold text-xl'>재료</div>
+        <div className='font-bold text-xl'>🍴 재료</div>
         {recipe.ingredients.length > 0 ? (
           recipe.ingredients.map((ingredient) => (
             <li key={ingredient}>{ingredient}</li>
@@ -210,7 +210,7 @@ export default function Recipe({
 
       {/* 조리 과정 */}
       <article>
-        <div className='font-bold text-xl'>조리과정</div>
+        <div className='font-bold text-xl'>🥣 조리과정</div>
         {recipe.steps.length > 0 ? (
           <ol className='list-decimal ml-5'>
             {recipe.steps.map((step, index) => (
@@ -225,12 +225,12 @@ export default function Recipe({
       {/* 수정 기록 */}
       {selectedVersion === null && (
         <article className='font-bold text-xl'>
-          <div className='font-bold text-xl'>수정기록</div>
+          <div className='font-bold text-xl'>📜 수정기록</div>
           {recipe.versions?.map((version, index) => (
             <li key={index} className='space-x-4 mb-1'>
               <button
                 onClick={() => restoreVersion(+recipeId, index)}
-                className='text-sm hover:text-purple-600'
+                className='text-sm hover:text-orange-400'
               >
                 {new Date(version.date).toLocaleString()}
               </button>
@@ -241,18 +241,18 @@ export default function Recipe({
 
       {/* 수정/삭제/목록으로 */}
       {selectedVersion === null ? (
-        <article className='space-x-3'>
-          <button className='text-black bg-yellow-500 rounded p-3'>
+        <article className='flex space-x-3'>
+          <button className='btn-default text-black bg-purple-400'>
             <Link href={`/recipes/${recipeId}/edit`}>수정</Link>
           </button>
 
           <button
-            className='text-black bg-pink-500 rounded p-3'
+            className='btn-default text-black bg-yellow-400'
             onClick={handleDelete}
           >
             삭제
           </button>
-          <button className='text-black bg-gray-500 rounded p-3'>
+          <button className='btn-default text-black bg-pink-400'>
             <Link href='/recipes'>목록으로</Link>
           </button>
         </article>
