@@ -119,9 +119,8 @@ export default function Recipe({
     if (currentRecipe && currentRecipe.versions[versionIndex]) {
       const previousVersion = currentRecipe.versions[versionIndex].recipe;
 
-      // 상태 업데이트: 선택한 이전 버전 레시피를 화면에 반영
       setRecipe(previousVersion);
-      setSelectedVersion(versionIndex); // 선택된 버전 업데이트
+      setSelectedVersion(versionIndex);
     }
   }
 
@@ -129,7 +128,7 @@ export default function Recipe({
     const latestRecipe = getRecipeFromLocalStorage(recipeId);
     if (latestRecipe) {
       setRecipe(latestRecipe);
-      setSelectedVersion(null); // 선택된 버전 초기화
+      setSelectedVersion(null);
     }
   }
 
@@ -148,6 +147,7 @@ export default function Recipe({
                 <div className='flex gap-4 mt-2'>
                   <input
                     type='number'
+                    name='timerNum'
                     placeholder='시간(초)'
                     className='rounded px-2 text-black'
                     value={inputValues[index] === '' ? '' : inputValues[index]}
@@ -155,18 +155,24 @@ export default function Recipe({
                       handleInputChange(index, e.currentTarget.value)
                     }
                   />
-                  <button
-                    className='flex items-center gap-3 bg-blue-700 rounded px-3 py-2'
-                    onClick={() => handleStartTimer(index)}
-                    disabled={remainingTimes[index] !== null}
-                  >
-                    <BellAlertIcon className='w-4' />
-                    타이머 시작
-                  </button>
-                  {remainingTimes[index] !== null && (
-                    <div className='mt-2 text-red-500'>
+                  {remainingTimes[index] !== null ? (
+                    <button
+                      className='flex items-center gap-3 bg-red-500 rounded px-3 py-2'
+                      onClick={() => handleStartTimer(index)}
+                      disabled={remainingTimes[index] !== null}
+                    >
+                      <BellAlertIcon className='w-4' />
                       남은 시간: {remainingTimes[index]}초
-                    </div>
+                    </button>
+                  ) : (
+                    <button
+                      className='flex items-center gap-3 bg-blue-700 rounded px-3 py-2'
+                      onClick={() => handleStartTimer(index)}
+                      disabled={remainingTimes[index] !== null}
+                    >
+                      <BellAlertIcon className='w-4' />
+                      타이머 시작
+                    </button>
                   )}
                 </div>
               </li>
@@ -221,7 +227,7 @@ export default function Recipe({
         <article className='font-bold text-xl'>
           <div className='font-bold text-xl'>수정기록</div>
           {recipe.versions?.map((version, index) => (
-            <li key={index} className='space-x-4 mb-2'>
+            <li key={index} className='space-x-4 mb-1'>
               <button
                 onClick={() => restoreVersion(+recipeId, index)}
                 className='text-sm hover:text-purple-600'
