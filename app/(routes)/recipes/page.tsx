@@ -65,7 +65,7 @@ export default function Recipes() {
                 </div>
                 {/* 태그 모음 */}
                 <div>
-                  {tags.length > 0 ? (
+                  {tags.length > 0 &&
                     tags.map((tag) => (
                       <span
                         key={tag}
@@ -73,10 +73,7 @@ export default function Recipes() {
                       >
                         {tag}
                       </span>
-                    ))
-                  ) : (
-                    <span className='text-gray-500'>태그 없음</span>
-                  )}
+                    ))}
                 </div>
                 {/* 자세히 보기 버튼 */}
                 <Link

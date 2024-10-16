@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import {
   deleteRecipeFromLocalStorage,
   getRecipeFromLocalStorage,
-  saveRecipeToLocalStorage,
 } from '@/lib/localStorage';
 import { TRecipe } from '@/lib/types';
 import NotFoundRecipe from '../not-found';
@@ -111,15 +110,24 @@ export default function Recipe({
     const storedRecipes = localStorage.getItem('recipes');
     const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
 
-    const recipe = recipes.find((recipe: TRecipe) => recipe.id === recipeId);
+    const currentRecipe = recipes.find(
+      (recipe: TRecipe) => recipe.id === recipeId
+    );
 
-    if (recipe && recipe.versions[versionIndex]) {
-      const previousVersion = recipe.versions[versionIndex].recipe;
+    if (currentRecipe && currentRecipe.versions[versionIndex]) {
+      const previousVersion = currentRecipe.versions[versionIndex].recipe;
 
-      // 상태 업데이트를 사용하여 화면에 이전 버전 레시피를 반영
+      // 상태 업데이트: 화면에 이전 버전 레시피를 반영하고, 기존 수정 기록은 그대로 유지
       setRecipe(previousVersion);
 
-      saveRecipeToLocalStorage(recipeId, previousVersion);
+      // inputValues, remainingTimes, timers 상태 초기화
+      setInputValues(Array(previousVersion.steps.length).fill(''));
+      setRemainingTimes(Array(previousVersion.steps.length).fill(null));
+      setTimers(Array(previousVersion.steps.length).fill(null));
+
+      // 버전 기록을 화면에 그대로 유지합니다.
+      // (상태 업데이트를 할 필요가 없다면 이 부분을 수정할 수 있습니다.)
+      // setVersions(currentRecipe.versions);  // 현재 버전을 그대로 유지
     }
   }
 
@@ -179,16 +187,34 @@ export default function Recipe({
       {/* 재료 */}
       <article>
         <div className='font-bold text-xl'>재료</div>
-        {recipe?.ingredients.map((ingredient) => (
-          <li key={ingredient}>{ingredient}</li>
-        ))}
+        {recipe.ingredients.length > 0 ? (
+          recipe.ingredients.map((ingredient) => (
+            <li key={ingredient}>{ingredient}</li>
+          ))
+        ) : (
+          <div>(아직 재료를 입력하지 않았습니다.)</div>
+        )}
+      </article>
+
+      {/* 조리 과정 */}
+      <article>
+        <div className='font-bold text-xl'>조리과정</div>
+        {recipe.steps.length > 0 ? (
+          <ol className='list-decimal ml-5'>
+            {recipe.steps.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ol>
+        ) : (
+          <div>(아직 조리과정을 입력하지 않았습니다.)</div>
+        )}
       </article>
 
       {/* 수정 기록 */}
       <article className='font-bold text-xl'>
         <div className='font-bold text-xl'>수정기록</div>
         <ul>
-          {recipe.versions.map((version, index) => (
+          {recipe.versions?.map((version, index) => (
             <li key={index} className='space-x-4 mb-2'>
               <button
                 onClick={() => restoreVersion(+recipeId, index)}

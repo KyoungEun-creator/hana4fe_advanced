@@ -25,7 +25,7 @@ export const {
           return null;
 
         const { email } = credentials;
-        const user = { id: '1', email, name: 'Hong' } as User;
+        const user = { email } as User;
         return user;
       },
     }),
@@ -34,7 +34,7 @@ export const {
   ],
   callbacks: {
     session({ session }) {
-      console.log('🚀 cb - session:', session);
+      // console.log('🚀 cb - session:', session);
       return session;
     },
   },
