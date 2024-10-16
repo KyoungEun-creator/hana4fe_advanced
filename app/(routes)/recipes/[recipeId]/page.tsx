@@ -20,6 +20,7 @@ export default function Recipe({
   const [recipe, setRecipe] = useState<TRecipe | null>(
     getRecipeFromLocalStorage(+recipeId)
   );
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null); // 선택된 버전 상태 추가
 
   const stepsLength = recipe?.steps.length || 0;
 
@@ -99,7 +100,6 @@ export default function Recipe({
       intervalIds.push(intervalId);
     });
 
-    // cleanup 함수로 각 타이머를 정리
     return () => intervalIds.forEach(clearInterval);
   }, [remainingTimes, recipe]);
 
@@ -117,17 +117,17 @@ export default function Recipe({
     if (currentRecipe && currentRecipe.versions[versionIndex]) {
       const previousVersion = currentRecipe.versions[versionIndex].recipe;
 
-      // 상태 업데이트: 화면에 이전 버전 레시피를 반영하고, 기존 수정 기록은 그대로 유지
+      // 상태 업데이트: 선택한 이전 버전 레시피를 화면에 반영
       setRecipe(previousVersion);
+      setSelectedVersion(versionIndex); // 선택된 버전 업데이트
+    }
+  }
 
-      // inputValues, remainingTimes, timers 상태 초기화
-      setInputValues(Array(previousVersion.steps.length).fill(''));
-      setRemainingTimes(Array(previousVersion.steps.length).fill(null));
-      setTimers(Array(previousVersion.steps.length).fill(null));
-
-      // 버전 기록을 화면에 그대로 유지합니다.
-      // (상태 업데이트를 할 필요가 없다면 이 부분을 수정할 수 있습니다.)
-      // setVersions(currentRecipe.versions);  // 현재 버전을 그대로 유지
+  function restoreLatestVersion(recipeId: number) {
+    const latestRecipe = getRecipeFromLocalStorage(recipeId);
+    if (latestRecipe) {
+      setRecipe(latestRecipe);
+      setSelectedVersion(null); // 선택된 버전 초기화
     }
   }
 
@@ -215,9 +215,9 @@ export default function Recipe({
       </article>
 
       {/* 수정 기록 */}
-      <article className='font-bold text-xl'>
-        <div className='font-bold text-xl'>수정기록</div>
-        <ul>
+      {selectedVersion === null && (
+        <article className='font-bold text-xl'>
+          <div className='font-bold text-xl'>수정기록</div>
           {recipe.versions?.map((version, index) => (
             <li key={index} className='space-x-4 mb-2'>
               <button
@@ -228,25 +228,34 @@ export default function Recipe({
               </button>
             </li>
           ))}
-        </ul>
-      </article>
+        </article>
+      )}
 
       {/* 수정/삭제/목록으로 */}
-      <article className='space-x-3'>
-        <button className='text-black bg-yellow-500 rounded p-3'>
-          <Link href={`/recipes/${recipeId}/edit`}>수정</Link>
-        </button>
+      {selectedVersion === null ? (
+        <article className='space-x-3'>
+          <button className='text-black bg-yellow-500 rounded p-3'>
+            <Link href={`/recipes/${recipeId}/edit`}>수정</Link>
+          </button>
 
+          <button
+            className='text-black bg-pink-500 rounded p-3'
+            onClick={handleDelete}
+          >
+            삭제
+          </button>
+          <button className='text-black bg-gray-500 rounded p-3'>
+            <Link href='/recipes'>목록으로</Link>
+          </button>
+        </article>
+      ) : (
         <button
+          onClick={() => restoreLatestVersion(+recipeId)}
           className='text-black bg-pink-500 rounded p-3'
-          onClick={handleDelete}
         >
-          삭제
+          최신 버전으로 돌아가기
         </button>
-        <button className='text-black bg-gray-500 rounded p-3'>
-          <Link href='/recipes'>목록으로</Link>
-        </button>
-      </article>
+      )}
     </div>
   );
 }
