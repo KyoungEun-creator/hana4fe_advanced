@@ -9,7 +9,7 @@ export default function SignInOut() {
     return (
       <a
         href='/api/auth/signout?callbackUrl=/'
-        className='flex text-center bg-red-500 px-3 py-2 rounded'
+        className='btn-default text-center bg-red-500'
       >
         로그아웃
       </a>
@@ -17,7 +17,7 @@ export default function SignInOut() {
   return (
     <a
       href='/api/auth/signin?callbackUrl=/'
-      className='flex text-center bg-red-500 px-3 py-2 rounded'
+      className='btn-default text-center bg-red-500'
     >
       로그인
     </a>
