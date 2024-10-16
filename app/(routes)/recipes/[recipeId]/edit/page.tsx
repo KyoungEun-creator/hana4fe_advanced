@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { getRecipeFromLocalStorage } from '@/lib/localStorage';
-import { type TRecipe } from '../../page';
+import { type TRecipe } from '@/lib/types';
 
 export default function EditRecipe({
   params: { recipeId },
@@ -17,6 +17,10 @@ export default function EditRecipe({
   const [tags, setTags] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [steps, setSteps] = useState<string[]>([]);
+  const [versions, setVersions] = useState<{ date: string; recipe: TRecipe }[]>(
+    []
+  );
+
   const tagRef = useRef<HTMLInputElement>(null);
   const ingredientRef = useRef<HTMLInputElement>(null);
   const stepRef = useRef<HTMLInputElement>(null);
@@ -28,28 +32,26 @@ export default function EditRecipe({
       setTags(recipe.tags || []);
       setIngredients(recipe.ingredients || []);
       setSteps(recipe.steps || []);
+      setVersions(recipe.versions || []);
     }
   }, [id]);
 
   function saveRecipe() {
-    // 여기서 FormData 객체를 만들기
-    const formData = new FormData();
-    formData.append('title', title);
-    tags.forEach((tag) => formData.append('tag', tag));
-    ingredients.forEach((ingredient) =>
-      formData.append('ingredient', ingredient)
-    );
-    steps.forEach((step) => formData.append('step', step));
-
     const storedRecipes = localStorage.getItem('recipes');
     const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
 
+    const currentDate = new Date().toISOString();
+
     const updatedRecipe = {
-      id: id,
+      id: +recipeId,
       title,
       tags,
       ingredients,
       steps,
+      versions: [
+        ...versions,
+        { date: currentDate, recipe: { id, title, tags, ingredients, steps } },
+      ],
     };
 
     const updatedRecipes = recipes.map((recipe: TRecipe) =>
@@ -102,6 +104,12 @@ export default function EditRecipe({
       stepRef.current.value = '';
     }
   };
+
+  const isSaveDisabled =
+    !title ||
+    tags.length === 0 ||
+    ingredients.length === 0 ||
+    steps.length === 0;
 
   return (
     <div className='w-full'>
@@ -223,15 +231,15 @@ export default function EditRecipe({
 
         <div className='space-x-4'>
           <button
-            type='button' // 변경: 버튼 타입을 'button'으로 설정
-            onClick={saveRecipe} // 클릭 시 saveRecipe 호출
-            className='bg-blue-400 p-3 rounded'
+            onClick={saveRecipe}
+            className={`bg-blue-400 text-white px-4 py-2 rounded ${isSaveDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isSaveDisabled}
           >
-            레시피 수정
+            저장
           </button>
-          <Link href={'/recipes'}>
-            <button type='button' className='bg-pink-400 p-3 rounded'>
-              목록으로
+          <Link href='/'>
+            <button className='bg-red-400 text-white px-4 py-2 rounded'>
+              취소
             </button>
           </Link>
         </div>

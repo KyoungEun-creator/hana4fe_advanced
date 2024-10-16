@@ -3,14 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-
-export type TRecipe = {
-  id: number;
-  title: string;
-  tags: string[];
-  ingredients: string[];
-  steps: string[];
-};
+import { type TRecipe } from '@/lib/types';
 
 export default function Recipes() {
   const [recipes, setRecipes] = useState<TRecipe[]>([]);

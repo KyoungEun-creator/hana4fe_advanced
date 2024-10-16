@@ -7,7 +7,9 @@ import { useEffect, useState } from 'react';
 import {
   deleteRecipeFromLocalStorage,
   getRecipeFromLocalStorage,
+  saveRecipeToLocalStorage,
 } from '@/lib/localStorage';
+import { TRecipe } from '@/lib/types';
 import NotFoundRecipe from '../not-found';
 
 export default function Recipe({
@@ -32,7 +34,7 @@ export default function Recipe({
 
   // 레시피 삭제 버튼
   const handleDelete = () => {
-    if (confirm('Are you sure?')) {
+    if (confirm('정말 삭제하시겠습니까?')) {
       deleteRecipeFromLocalStorage(+recipeId);
       Router.push('/recipes');
     }
@@ -67,7 +69,7 @@ export default function Recipe({
       if (remainingTime === null) return;
 
       if (remainingTime === 0) {
-        alert(`Step ${index + 1} 타이머가 종료되었습니다!`);
+        alert(`단계 ${index + 1} 타이머가 종료되었습니다!`);
 
         setRemainingTimes((prev) => {
           const newTimes = [...prev];
@@ -101,6 +103,19 @@ export default function Recipe({
   }, [remainingTimes, recipe]);
 
   if (!recipe) return <NotFoundRecipe />;
+
+  // 버전 복원 함수
+  function restoreVersion(recipeId: number, versionIndex: number) {
+    const storedRecipes = localStorage.getItem('recipes');
+    const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
+
+    const recipe = recipes.find((recipe: TRecipe) => recipe.id === recipeId);
+
+    if (recipe && recipe.versions[versionIndex]) {
+      const previousVersion = recipe.versions[versionIndex].recipe;
+      saveRecipeToLocalStorage(recipeId, previousVersion); // 이전 버전으로 레시피 저장
+    }
+  }
 
   return (
     <div className='w-full space-y-4'>
@@ -164,7 +179,21 @@ export default function Recipe({
       </article>
 
       {/* 수정 기록 */}
-      <article className='font-bold text-xl'>수정기록</article>
+      <article className='font-bold text-xl'>
+        <div className='font-bold text-xl'>수정기록</div>
+        <ul>
+          {recipe.versions.map((version, index) => (
+            <li key={index} className='space-x-4 mb-2'>
+              <button
+                onClick={() => restoreVersion(+recipeId, index)}
+                className='text-sm hover:text-purple-600'
+              >
+                {new Date(version.date).toLocaleString()}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </article>
 
       {/* 수정/삭제/목록으로 */}
       <article className='space-x-3'>

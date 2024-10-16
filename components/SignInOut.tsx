@@ -16,7 +16,7 @@ export default function SignInOut() {
     );
   return (
     <a
-      href='/api/auth/signin?callbackUrl=/recipes'
+      href='/api/auth/signin?callbackUrl=/'
       className='flex text-center bg-red-500 px-3 py-2 rounded'
     >
       로그인{' '}

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
-import { TRecipe } from '../recipes/page';
+import { type TRecipe } from '@/lib/types';
 
 export default function New() {
   const Router = useRouter();
@@ -63,7 +63,27 @@ export default function New() {
       ? Math.max(...recipes.map((r) => r.id)) + 1
       : 1;
 
-    const newRecipe = { id: recipeId, title, tags, ingredients, steps };
+    const newRecipe: TRecipe = {
+      id: recipeId,
+      title,
+      tags,
+      ingredients,
+      steps,
+      versions: [
+        {
+          date: new Date().toISOString(),
+          recipe: {
+            id: recipeId,
+            title,
+            tags,
+            ingredients,
+            steps,
+            versions: [],
+          },
+        },
+      ],
+    };
+
     const updatedRecipes = [...recipes, newRecipe];
     localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
     setRecipes(updatedRecipes);
