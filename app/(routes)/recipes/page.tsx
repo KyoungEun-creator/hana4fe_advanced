@@ -1,5 +1,6 @@
 'use client';
 
+import Error from '@/app/error';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -43,13 +44,13 @@ export default function Recipes() {
             fill='currentFill'
           />
         </svg>
-        <span>Loading...</span>
+        <span className='text-2xl'>로딩중...🤸🏻‍♀️🧘🏻‍♀️🦦✨</span>
       </div>
     );
   }
 
   if (error) {
-    return <div className='text-red-500'>{error.message}</div>;
+    return <Error error={error} reset={() => setError(null)} />;
   }
 
   return (
@@ -78,9 +79,9 @@ export default function Recipes() {
                 {/* 자세히 보기 버튼 */}
                 <Link
                   href={`/recipes/${id}`}
-                  className='text-center bg-pink-700 rounded py-2'
+                  className='text-center bg-pink-400 hover:bg-pink-600 rounded py-2'
                 >
-                  자세히보기
+                  자세히 보기
                 </Link>
               </div>
             </li>

@@ -15,7 +15,13 @@ export default function Error({
   return (
     <div>
       <h2>Something went wrong!</h2>
-      <Image src='/images/error.jpeg' alt='Logo' width={1000} height={1000} />
+      <Image
+        src='/images/error.jpeg'
+        alt='Logo'
+        width={1000}
+        height={1000}
+        className='my-3'
+      />
       <div className='w-full overflow-scroll text-red-500'>
         {error.stack || error.message}
       </div>

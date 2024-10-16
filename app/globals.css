@@ -25,3 +25,12 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .btn-default {
+    @apply rounded px-3 py-2;
+  }
+  .btn-small {
+    @apply rounded px-2 py-1;
+  }
+}

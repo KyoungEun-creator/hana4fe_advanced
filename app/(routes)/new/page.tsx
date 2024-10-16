@@ -111,7 +111,7 @@ export default function New() {
       <h1 className='text-3xl font-extrabold my-4'>새 레시피 추가하기</h1>
 
       <div className='space-y-5'>
-        <div className='flex flex-col'>
+        <div className='flex flex-col space-y-3'>
           <label htmlFor='title' className='font-bold text-xl'>
             레시피 제목
           </label>
@@ -145,7 +145,7 @@ export default function New() {
             />
             <button
               type='submit'
-              className='bg-purple-300 text-black px-3 py-2 rounded hover:bg-purple-500'
+              className='btn-default bg-purple-300 text-black hover:bg-purple-500'
             >
               추가
             </button>
@@ -153,7 +153,7 @@ export default function New() {
           <div className='flex'>
             {tags.map((tag, index) => (
               <div key={index} className='flex'>
-                <div className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+                <div className='btn-small bg-gray-300 mr-2 text-gray-800'>
                   <span>{tag}</span>
                   <button
                     onClick={() => handleRemoveTag(index)}
@@ -229,7 +229,7 @@ export default function New() {
             />
             <button
               type='submit'
-              className='bg-green-300 text-black px-3 py-2 rounded hover:bg-green-500'
+              className='btn-default bg-green-300 text-black hover:bg-green-500'
             >
               추가
             </button>
@@ -254,7 +254,7 @@ export default function New() {
           <button
             type='submit'
             onClick={handleSubmit}
-            className={`bg-blue-600 text-white px-4 py-2 rounded ${isSaveDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`btn-default bg-blue-600 text-white ${isSaveDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             레시피 저장
           </button>

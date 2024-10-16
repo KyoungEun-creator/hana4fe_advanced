@@ -19,7 +19,7 @@ export default function SignInOut() {
       href='/api/auth/signin?callbackUrl=/'
       className='flex text-center bg-red-500 px-3 py-2 rounded'
     >
-      로그인{' '}
+      로그인
     </a>
   );
 }
