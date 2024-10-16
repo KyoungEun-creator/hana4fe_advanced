@@ -91,6 +91,10 @@ export default function New() {
     Router.push('/recipes');
   };
 
+  const handleRemoveTag = (index: number) => {
+    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
+  };
+
   const handleRemoveIngredient = (index: number) => {
     setIngredients((prevIngredients) =>
       prevIngredients.filter((_, i) => i !== index)
@@ -145,7 +149,23 @@ export default function New() {
               추가
             </button>
           </div>
-          <ul className='flex'>
+          <div className='flex'>
+            {tags.map((tag, index) => (
+              <div key={index} className='flex'>
+                <div className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'>
+                  <span>{tag}</span>
+                  <button
+                    onClick={() => handleRemoveTag(index)}
+                    className='text-red-500 ml-2'
+                  >
+                    X
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* <ul className='flex'>
             {tags.map((tag, index) => (
               <li
                 key={index}
@@ -154,7 +174,7 @@ export default function New() {
                 {tag}
               </li>
             ))}
-          </ul>
+          </ul> */}
         </form>
 
         {/* 재료 목록 */}

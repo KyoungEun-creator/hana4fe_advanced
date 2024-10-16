@@ -27,7 +27,6 @@ export default function EditRecipe({
 
   useEffect(() => {
     const recipe = getRecipeFromLocalStorage(id);
-    // console.log('***********', recipe);
     if (recipe) {
       setTitle(recipe.title);
       setTags(recipe.tags || []);
@@ -63,19 +62,6 @@ export default function EditRecipe({
     Router.push(`/recipes/${recipeId}`);
   }
 
-  // 컴포넌트가 처음 렌더링될 때만 레시피 데이터를 불러옴
-  useEffect(() => {
-    const recipe = getRecipeFromLocalStorage(id);
-    if (recipe) {
-      setTitle(recipe.title);
-      setTags(recipe.tags || []);
-      setIngredients(recipe.ingredients || []);
-      setSteps(recipe.steps || []);
-      setVersions(recipe.versions || []);
-    }
-  }, [id]); // 'id'가 변경될 때만 실행
-
-  // 컴포넌트가 처음 렌더링될 때만 레시피 데이터를 불러옴
   useEffect(() => {
     const recipe = getRecipeFromLocalStorage(id);
     if (recipe) {

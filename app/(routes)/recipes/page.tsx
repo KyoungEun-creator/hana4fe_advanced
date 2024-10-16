@@ -94,9 +94,11 @@ export default function Recipes() {
             width={1000}
             height={1000}
           />
-          <div className='text-2xl mt-3 bg-pink-500'>
-            새로운 레시피를 추가해보세요🐷
-          </div>
+          <Link href='/new'>
+            <div className='text-2xl mt-3 text-pink-500 hover:bg-pink-500 hover:text-white'>
+              새로운 레시피를 추가해보세요🐷
+            </div>
+          </Link>
         </>
       )}
     </>
