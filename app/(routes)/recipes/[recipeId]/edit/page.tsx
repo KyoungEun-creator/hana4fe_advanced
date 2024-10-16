@@ -36,6 +36,47 @@ export default function EditRecipe({
     }
   }, [id]);
 
+  const handleTagSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (tagRef.current?.value) {
+      const newval = tagRef.current.value;
+      const formattedTag = newval.startsWith('#') ? newval : `#${newval}`;
+      setTags((prevTags) => [...prevTags, formattedTag]);
+      tagRef.current.value = '';
+    }
+  };
+  const handleRemoveTag = (index: number) => {
+    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
+  };
+
+  const handleIngredientSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (ingredientRef.current?.value) {
+      const newval = ingredientRef.current.value;
+      setIngredients((prevIngredients) => [...prevIngredients, newval]);
+      ingredientRef.current.value = '';
+    }
+  };
+  const handleRemoveIngredient = (index: number) => {
+    setIngredients((prevIngredients) =>
+      prevIngredients.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleStepSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (stepRef.current?.value) {
+      const newval = stepRef.current.value;
+      setSteps((prevSteps) => [...prevSteps, newval]);
+      stepRef.current.value = '';
+    }
+  };
+  const handleRemoveStep = (index: number) => {
+    setSteps((prevSteps) => prevSteps.filter((_, i) => i !== index));
+  };
+
+  const isSaveDisabled = !title;
+
   function saveRecipe() {
     const storedRecipes = localStorage.getItem('recipes');
     const recipes = storedRecipes ? JSON.parse(storedRecipes) : [];
@@ -62,61 +103,6 @@ export default function EditRecipe({
     Router.push(`/recipes/${recipeId}`);
   }
 
-  useEffect(() => {
-    const recipe = getRecipeFromLocalStorage(id);
-    if (recipe) {
-      setTitle(recipe.title);
-      setTags(recipe.tags || []);
-      setIngredients(recipe.ingredients || []);
-      setSteps(recipe.steps || []);
-      setVersions(recipe.versions || []);
-    }
-  }, [id]);
-
-  const handleRemoveTag = (index: number) => {
-    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
-  };
-
-  const handleRemoveIngredient = (index: number) => {
-    setIngredients((prevIngredients) =>
-      prevIngredients.filter((_, i) => i !== index)
-    );
-  };
-
-  const handleRemoveStep = (index: number) => {
-    setSteps((prevSteps) => prevSteps.filter((_, i) => i !== index));
-  };
-
-  const handleTagSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (tagRef.current?.value) {
-      const newval = tagRef.current.value;
-      const formattedTag = newval.startsWith('#') ? newval : `#${newval}`;
-      setTags((prevTags) => [...prevTags, formattedTag]);
-      tagRef.current.value = '';
-    }
-  };
-
-  const handleIngredientSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (ingredientRef.current?.value) {
-      const newval = ingredientRef.current.value;
-      setIngredients((prevIngredients) => [...prevIngredients, newval]);
-      ingredientRef.current.value = '';
-    }
-  };
-
-  const handleStepSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (stepRef.current?.value) {
-      const newval = stepRef.current.value;
-      setSteps((prevSteps) => [...prevSteps, newval]);
-      stepRef.current.value = '';
-    }
-  };
-
-  const isSaveDisabled = !title;
-
   return (
     <div className='w-full'>
       <h1 className='text-3xl font-extrabold my-4'>레시피 수정</h1>
@@ -131,6 +117,7 @@ export default function EditRecipe({
             type='text'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            placeholder='필수값입니다.'
             className='border text-black p-2 rounded'
           />
         </div>
@@ -139,7 +126,7 @@ export default function EditRecipe({
           <label htmlFor='tag' className='font-bold text-xl'>
             태그 목록
           </label>
-          <div className='flex justify-between mb-3'>
+          <div className='flex justify-between gap-3 mb-3'>
             <input
               ref={tagRef}
               type='text'
@@ -175,7 +162,7 @@ export default function EditRecipe({
           <label htmlFor='ingredient' className='font-bold text-xl'>
             재료 목록
           </label>
-          <div className='flex justify-between mb-3'>
+          <div className='flex justify-between gap-3 mb-3'>
             <input
               ref={ingredientRef}
               type='text'
@@ -206,7 +193,7 @@ export default function EditRecipe({
           <label htmlFor='step' className='font-bold text-xl'>
             조리 과정
           </label>
-          <div className='flex justify-between mb-3'>
+          <div className='flex justify-between gap-3 mb-3'>
             <input
               ref={stepRef}
               type='text'

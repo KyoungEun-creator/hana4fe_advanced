@@ -71,7 +71,9 @@ export default function Recipe({
       if (remainingTime === null) return;
 
       if (remainingTime === 0) {
-        alert(`단계 ${index + 1} 타이머가 종료되었습니다!`);
+        alert(
+          `🔔${index + 1}단계 타이머가 종료되었습니다! 다음 단계로 넘어가세요🧚🏻‍♀️`
+        );
 
         setRemainingTimes((prev) => {
           const newTimes = [...prev];

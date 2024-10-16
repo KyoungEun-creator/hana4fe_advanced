@@ -32,6 +32,9 @@ export default function New() {
       }
     }
   };
+  const handleRemoveTag = (index: number) => {
+    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
+  };
 
   const handleAddIngredient = () => {
     if (ingredientRef.current) {
@@ -45,6 +48,11 @@ export default function New() {
       }
     }
   };
+  const handleRemoveIngredient = (index: number) => {
+    setIngredients((prevIngredients) =>
+      prevIngredients.filter((_, i) => i !== index)
+    );
+  };
 
   const handleAddStep = () => {
     if (stepRef.current) {
@@ -55,9 +63,16 @@ export default function New() {
       }
     }
   };
+  const handleRemoveStep = (index: number) => {
+    setSteps((prevSteps) => prevSteps.filter((_, i) => i !== index));
+  };
+
+  const isSaveDisabled = !title;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSaveDisabled) return alert('레시피 제목을 추가하세요');
 
     const recipeId = recipes.length
       ? Math.max(...recipes.map((r) => r.id)) + 1
@@ -91,20 +106,6 @@ export default function New() {
     Router.push('/recipes');
   };
 
-  const handleRemoveTag = (index: number) => {
-    setTags((prevTags) => prevTags.filter((_, i) => i !== index));
-  };
-
-  const handleRemoveIngredient = (index: number) => {
-    setIngredients((prevIngredients) =>
-      prevIngredients.filter((_, i) => i !== index)
-    );
-  };
-
-  const handleRemoveStep = (index: number) => {
-    setSteps((prevSteps) => prevSteps.filter((_, i) => i !== index));
-  };
-
   return (
     <div className='w-full'>
       <h1 className='text-3xl font-extrabold my-4'>새 레시피 추가하기</h1>
@@ -134,7 +135,7 @@ export default function New() {
           <label htmlFor='tag' className='font-bold text-xl'>
             태그
           </label>
-          <div className='flex justify-between space-x-4'>
+          <div className='flex justify-between gap-3'>
             <input
               name='tag'
               ref={tagRef}
@@ -164,17 +165,6 @@ export default function New() {
               </div>
             ))}
           </div>
-
-          {/* <ul className='flex'>
-            {tags.map((tag, index) => (
-              <li
-                key={index}
-                className='bg-gray-300 px-2 py-1 mr-2 text-gray-800 rounded'
-              >
-                {tag}
-              </li>
-            ))}
-          </ul> */}
         </form>
 
         {/* 재료 목록 */}
@@ -188,7 +178,7 @@ export default function New() {
           <label htmlFor='ingredient' className='font-bold text-xl'>
             재료 목록
           </label>
-          <div className='flex justify-between space-x-4'>
+          <div className='flex justify-between gap-3'>
             <input
               name='ingredient'
               ref={ingredientRef}
@@ -229,7 +219,7 @@ export default function New() {
           <label htmlFor='step' className='font-bold text-xl'>
             조리 과정
           </label>
-          <div className='flex justify-between space-x-4'>
+          <div className='flex justify-between gap-3'>
             <input
               name='step'
               ref={stepRef}
@@ -264,7 +254,7 @@ export default function New() {
           <button
             type='submit'
             onClick={handleSubmit}
-            className='bg-blue-400 p-3 rounded hover:bg-blue-600'
+            className={`bg-blue-600 text-white px-4 py-2 rounded ${isSaveDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             레시피 저장
           </button>
